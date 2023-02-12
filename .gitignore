@@ -1,0 +1,6 @@
+/home/guest/speaking_fridgey/ocr_deploy_v1/inference_server/__pycache__/*
+__pycache__/
+*.pyc
+*.png
+*.pth
+/home/guest/speaking_fridgey/ocr_deploy_v1/inference_server/test/*

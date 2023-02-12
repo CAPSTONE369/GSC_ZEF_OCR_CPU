@@ -1,0 +1,23 @@
+NAME: !!str 'HENNET'
+MAX_LENGTH: !!int 25
+CONVERTER: !!str 'HANGUL'
+MEAN: 0.5
+STD: 0.5
+IMG_W: !!int 192
+IMG_H: !!int 32
+ADD_NUM: !!bool true
+ADD_ENG: !!bool true
+PRETRAINED: '' # '/home/guest/ocr_exp_v2/weight/layer5_relu_MULTI_NORM_0to1_ADAM_STEP/2023-01-31_min_loss.pth'
+USE_RES: !!bool true # true # false
+SEPERABLE_FFN: !!bool true # true # false # true #  false ## Transformer Encoder의 FFN을 Convolution을 사용할지 말지
+PRETRAINED_OPTIM: '' # '/home/guest/ocr_exp_v2/optim/layer5_relu_MULTI_NORM_0to1_ADAM_STEP/2023-01-31.pth'
+ADAPTIVE_PE: !!bool false #  true # false # true # false # true
+RES_IN: 32
+USE_RESNET: !!bool true
+ENCODER_LAYER_NUM: !!int 5 # 6 # 5 # 6 # 5 # 12 # 5 # 12 # 12 # 5 # 2 # 4
+EMBEDDING_DIM: 512
+FEED_FORWARD_DIM: 2048
+HEAD_NUM: !!int 8
+ACTIVATION: !!str 'RELU' # 'TANH' # 'LEAKYRELU' # 'GELU' # 'TANH' 
+RGB: !!bool true # false
+CKPT: !!str '/home/guest/speaking_fridgey/ocr_exp_v2/weight/layer5_HENNET_Hangul_Converter_RGB_Package_/2023-02-11_min_loss.pth'

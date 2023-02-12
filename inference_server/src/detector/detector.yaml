@@ -1,0 +1,22 @@
+CKPT: !!str '/home/guest/speaking_fridgey/ocr_deploy_v1/inference_server/src/detector/weight/CTPN_FINAL_CHECKPOINT.pth'
+CONF_SCORE: !!float 0.9
+IOU_THRESH: !!float 0.2
+FEATURE_STRIDE: !!int 16
+ANCHOR_SHIFT: !!int 16
+ANCHOR_HEIGHTS: 
+    - 11
+    - 15
+    - 22
+    - 32
+    - 45
+    - 65
+    - 93
+    - 133
+    - 190
+    - 273
+MIN_V_OVERLAP: !!float 0.7
+MIN_SIZE_SIM: !!float 0.7
+MAX_HORI_GAP: !!int 20
+NMS_THRESH: !!float 0.3
+REFINEMENT: !!bool false
+MIN_SCORE: !!float 0.9
