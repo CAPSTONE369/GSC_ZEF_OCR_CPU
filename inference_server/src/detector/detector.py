@@ -302,11 +302,11 @@ class DetectBot(object):
 
     return detected_boxes
 
-  def __call__(self, image_path):
-    if isinstance(image_path, str) == False:
-      image = image_path
+  def __call__(self, image):
+    if isinstance(image, str) == False:
+      image = image
     else:
-      image = cv2.imread(image_path)
+      image = cv2.imread(image)
     original_image = image.copy()
     org_h, org_w, org_c = original_image.shape
     if self.crop:
