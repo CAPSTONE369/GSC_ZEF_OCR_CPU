@@ -11,11 +11,12 @@ app = Flask(__name__)
 def crop_images(image, bbox):
     croped = {}
     for idx, box in enumerate(bbox):
+        box, type_ = box
         x1,y1,x2,y2=box
         x1, y1 = math.ceil(x1), math.ceil(y1)
         x2, y2 = math.floor(x2), math.floor(y2)
         cv2.imwrite(f'test_{idx}.png', image[y1:y2, x1:x2,:])
-        croped[idx] = image[y1:y2, x1:x2, :]
+        croped[idx] = {"image": image[y1:y2, x1:x2, :], "type": type_}
     return croped
 
 def run_ocr(
@@ -32,8 +33,9 @@ def run_ocr(
     detect_bot = DetectBot(
         cfg=detection_cfg, remove_white=remove_white
     )
-    detected, box, image = detect_bot(input_image) ## bounding box 그려진 원본 이미지와 detection box 좌표
-    croped_dict = crop_images(image, bbox=box)
+    detected, box, image, selected_box = detect_bot(input_image) ## bounding box 그려진 원본 이미지와 detection box 좌표
+    # croped_dict = crop_images(image, bbox=box)
+    croped_dict = crop_images(image, bbox=selected_box)
     
     if recognition_model_path is None:
         return detected ## recognition path가 없는 경우에는 그냥 감지된 영역에 bbox처리된 이미지만 return
@@ -50,7 +52,7 @@ def run_ocr(
 
 @app.route("/")
 def main():
-    return "Hello World"
+    return "Hello World" 
 
 
 @app.route("/model", methods=['POST'])

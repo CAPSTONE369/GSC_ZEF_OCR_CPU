@@ -3,6 +3,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from jamo_utils import check_hangul, INITIAL, MEDIAL, FINAL, CHAR_INDICES,\
      get_jamo_type, CHARSET
 
+
 def join_jamo_char(init, mid, final=None):
     chars = (init, mid, final)
     for c in filter(None, chars):
@@ -14,7 +15,7 @@ def join_jamo_char(init, mid, final=None):
 
     return chr(0xac00 + 28 * 21 * init_idx + 28 * med_idx + final_idx)
 
-def join_jamos(s: str, ignore_err=True):
+def join_jamos(s: str, ignore_err=True, special_chars:str = ''):
     last_t = 0
     queue = []
     new_string = ''
@@ -43,9 +44,13 @@ def join_jamos(s: str, ignore_err=True):
         if char not in CHARSET and char != ' ':
             if queue:
                 new_c = flush() + char
-            else:
+            else: ## queue가 비어 있으면
                 if re.sub(' [A-Za-z0-9,.()]', '', char) == '': ## 숫자, 영어 인 경우
                     new_c = char
+                elif char in special_chars:
+                    # new_c = flush() + char
+                    new_c = char
+                    # new_string += char
                 else: ## 특수 문자인 경우
                     new_c = ''
             last_t = 0

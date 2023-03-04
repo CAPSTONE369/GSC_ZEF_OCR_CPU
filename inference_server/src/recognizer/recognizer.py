@@ -22,6 +22,7 @@ class HENNETPredictBot(object):
             max_seq_length = self.recog_cfg['MAX_LENGTH'] * 3
             self.converter = HangulLabelConverter(
                 add_num=self.recog_cfg['ADD_NUM'], add_eng=self.recog_cfg['ADD_ENG'],
+                add_special = self.recog_cfg['ADD_SPECIAL'],
                 max_length=self.recog_cfg['MAX_LENGTH'] * 3
             )
         else:
@@ -64,10 +65,39 @@ class HENNETPredictBot(object):
         return pred_text
         
     def predict_one_call(self, image_dict:dict):
-        predictions = {}
+        predictions = []
+        names = []
+        quantities = []
+
+        cnt = 0
         for key, value in image_dict.items():
-            pred_str = self.predict_single(value)
+            image = value["image"]
+            type_ = value["type"]
+            pred_str = self.predict_single(image)
+            # pred_str = self.predict_single(value)
             # predictions[key] = {'text': pred_str, 'bbox':[]}
-            predictions[key] = {'text': pred_str[0]}
+            # predictions[key] = {'text': pred_str[0]}
+            if type_ == "name":
+                names.append(pred_str[0])
+            else:
+                quantities.append(pred_str[0])
             print(pred_str[0])
+        for name, quant in zip(names, quantities):
+            predictions.append({
+                "name": name,
+                "quantities": quant
+            })
+            
         return predictions
+
+
+if __name__ == "__main__":
+    import yaml
+    YAML_DIR='/home/guest/speaking_fridgey/ocr_deploy_v1/inference_server/src/recognizer/recognizer.yaml'
+    with open(YAML_DIR, 'r') as f:
+        recog_cfg = yaml.load(f, Loader = yaml.FullLoader)
+
+    pb = HENNETPredictBot(recog_cfg)
+    SAMPLE_CROP='/home/guest/speaking_fridgey/ocr_deploy_v1/inference_server/test/num_1.jpg'
+    image  =cv2.imread(SAMPLE_CROP)
+    print(pb.predict_single(image))

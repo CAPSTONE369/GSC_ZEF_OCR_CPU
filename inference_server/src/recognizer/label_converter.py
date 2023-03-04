@@ -10,7 +10,7 @@ from jamo_utils.jamo_merge import join_jamos, join_jamo_char
 
 ALPHABET='abcdefghijklmnopqrstuvwxyz'
 NUMBER='0123456789'
-SPECIAL='.,()'
+SPECIAL='.,()[]-'
 CHANGE_DICT = {
     "[": "(", "]": ")", "【": "(", "】":")", 
     "〔": "(", "〕":")", "{":"(", "}":")", 
@@ -125,9 +125,11 @@ class HangulLabelConverter(object):
                 add_eng=False,
                 add_special=False,
                 max_length=75,
-                blank_char=u'\u2227',
-                null_char=u'\u2591', ## 이제 텍스트 문자가 끝났음을 의미
+                # special_chars='()[]-,.', ## 특수 문자는 이정도만 있어도 충분함
+                blank_char=u'\u2227', ## 해당 글자를 모르는 경우에 이걸로 바꿔줌?
+                null_char=u'\u2591', ## 이 null char이 있으면 현재 text box의 예측한 문자열이 끝났음을 의미
                 unknown_char=u'\u2567'):
+        self.special_character = SPECIAL if add_special else ''
         if add_special:
           additional_character = SPECIAL
         else:
@@ -192,19 +194,7 @@ class HangulLabelConverter(object):
               new_text += tok
             else:
               label.append(int(self.char_encoder_dict[self.unknown_char]))
-        """
-        jamo_str = j2hcj(h2j(text))
-        text = text.replace(' ', '')
-        for idx, j in enumerate(jamo_str.strip(' ')):
-        
-            if j != ' ':
-                new_text += j
-                try:
-                  temp_idx = int(self.char_encoder_dict[j])
-                  label.append(temp_idx)
-                except:
-                  label.append(int(self.char_encoder_dict[self.unknown_char]))
-        """
+ 
         if list(set(label)) == [self.unknown_char]:
           return None
         ## (2) char_dict를 사용해서 라벨 만들기
@@ -226,7 +216,7 @@ class HangulLabelConverter(object):
         pred_text, pred_scores, pred_lengths = [], [], []
         if len(scores.shape) == 2:
             scores=scores.unsqueeze(0)
-            
+         
         for score in scores:
             # score_ = torch.argmax(F.softmax(score, dim=-1), dim=1)
             score_ =torch.argmax(F.softmax(score, dim=-1), dim=-1)
@@ -249,7 +239,6 @@ class HangulLabelConverter(object):
             pred_lengths.append(min(len(text)+1, self.max_length))
 
         return pred_text, pred_scores, pred_lengths
-
 
 
 

@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from torchvision import transforms
 import os, sys
+from collections import defaultdict
 from loguru import logger
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from ctpn import CTPN
@@ -302,6 +303,71 @@ class DetectBot(object):
 
     return detected_boxes
 
+  def _filter_groups(self, center_boxes):
+    groups = defaultdict(list)
+    cnt = 0
+    group_cnt = 0
+    while (cnt < len(center_boxes)):
+      temp_group = []
+      prev = cnt
+      temp_box = center_boxes[cnt]
+      more = cnt
+      while True:
+        if more == len(center_boxes):
+          break
+        more_box = center_boxes[more]
+        if more_box[1] - temp_box[1] <= 5:
+          more += 1
+          temp_box = more_box
+        else:
+          break
+      for i in range(cnt, more):
+        temp_group.append(i)
+      groups[group_cnt] = temp_group
+      group_cnt += 1
+      if more == prev:
+        cnt = more +1
+      else:
+        cnt = more
+
+    return groups
+
+  def _select_box(self, all_box, image):
+    H, W, C = image.shape
+    center_box = []
+    for box in all_box:
+      cx = (box[2] + box[0]) / 2
+      cy = (box[3] + box[1]) / 2
+      w, h = box[2] - box[0], box[3] - box[1]
+      center_box.append([cx, cy, w, h])
+    center_box = sorted(center_box, key = lambda x: x[1])
+
+    groups = self._filter_groups(center_box) ## 가로축 기준으로 비슷한 위치에 있으면 같은 그룹으로 묶었음
+    
+    def return_box(center_point):
+      cx, cy, w, h = center_point
+      min_x, min_y = cx - w// 2, cy - h//2
+      max_x, max_y = cx + w//2, cy + h//2
+      return [min_x, min_y, max_x, max_y]
+
+    ## TODO: 여기부터 영수증 형태에 맞춰서 개선해 주어야 한다. ##
+    word_dict = []
+    for g in groups:
+      group=groups[g]
+      if len(group) > 3:
+        group = [center_box[x] for x in group]
+        group = sorted(group, key = lambda x: (x[0], x[2])) ## 가장 왼쪽부터 오른쪽까지 정렬을 해 준다.
+        
+        name_box = return_box(group[0])
+        quantity_box = return_box(group[1])
+        word_dict.append([name_box, "name"])
+        word_dict.append([quantity_box, "quantity"])
+        # word_dict.append({"name": name_box,  "quantity": quantity_box})
+    return word_dict
+
+
+
+
   def __call__(self, image):
     if isinstance(image, str) == False:
       image = image
@@ -323,7 +389,9 @@ class DetectBot(object):
       detected_boxes = self.predict(diff_h=croped_point[2], diff_w=croped_point[0], image=croped_image)
       all_box.extend(detected_boxes)
       original_image = draw_box(original_image, detected_boxes)
-    return original_image, all_box, image
+
+    selected_box = self._select_box(all_box, image)
+    return original_image, all_box, image, selected_box
 
 
 
