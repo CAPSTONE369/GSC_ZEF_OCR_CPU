@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from torchvision import transforms
 import os, sys
 from collections import defaultdict
@@ -356,10 +355,15 @@ class DetectBot(object):
       group=groups[g]
       if len(group) > 3:
         group = [center_box[x] for x in group]
-        group = sorted(group, key = lambda x: (x[0], x[2])) ## 가장 왼쪽부터 오른쪽까지 정렬을 해 준다.
+        group = sorted(group, key = lambda x: (-x[2], x[0]))
+
+        # group = sorted(group, key = lambda x: (x[0], x[2])) ## 가장 왼쪽부터 오른쪽까지 정렬을 해 준다.
         
         name_box = return_box(group[0])
-        quantity_box = return_box(group[1])
+        group = sorted(group[1:], key = lambda x: (x[2], -x[0]))
+        quantity_box = return_box(group[0])
+        
+        # quantity_box = return_box(group[1])
         word_dict.append([name_box, "name"])
         word_dict.append([quantity_box, "quantity"])
         # word_dict.append({"name": name_box,  "quantity": quantity_box})
