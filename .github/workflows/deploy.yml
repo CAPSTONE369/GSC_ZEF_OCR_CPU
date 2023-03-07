@@ -12,5 +12,4 @@ jobs:
         with:
           python-version: "3.8"
       - run: pip install -r requirements.txt
-      - run: cd inference_server/
-      - run: flask app.py
+      - run: flask inference_server/app.py
