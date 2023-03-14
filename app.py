@@ -1,5 +1,4 @@
-from src.detector.detector import DetectBot
-from src.recognizer.recognizer import HENNETPredictBot
+from src.fridgeyocr import fridgeyocr
 import os, yaml, math, cv2
 from PIL import Image
 import numpy as np
@@ -8,17 +7,7 @@ BASE_PATH=os.path.dirname(os.path.abspath(__file__))
 from flask import Flask
 app = Flask(__name__)
 
-def crop_images(image, bbox):
-    croped = {}
-    for idx, box in enumerate(bbox):
-        box, type_ = box
-        x1,y1,x2,y2=box
-        x1, y1 = math.ceil(x1), math.ceil(y1)
-        x2, y2 = math.floor(x2), math.floor(y2)
-        cv2.imwrite(f'test_{idx}.png', image[y1:y2, x1:x2,:])
-        croped[idx] = {"image": image[y1:y2, x1:x2, :], "type": type_}
-    return croped
-
+PRETRAINED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src/fridgeyocr/pretrained_models')
 def run_ocr(
     detection_cfg: dict, 
     input_image,
@@ -28,27 +17,16 @@ def run_ocr(
     # recognition_model_path: str, ## 사전학습된 HangulNet 모델 경로
     recognition_cfg: dict,
     ):
-    detection_model_path = detection_cfg['CKPT']
-    recognition_model_path = recognition_cfg['CKPT']
-    detect_bot = DetectBot(
-        cfg=detection_cfg, remove_white=remove_white
+    detection_model_path = os.path.join(PRETRAINED_DIR, detection_cfg['PRETRAINED'])
+    recognition_model_path = os.path.join(PRETRAINED_DIR, recognition_cfg['PRETRAINED'])
+    reader = fridgeyocr.Reader(
+        detect_network_pretrained = detection_model_path,
+        recog_network_pretrained = recognition_model_path,
+        gpu = True, detect_network = 'ctpn', recog_network = 'hennet'
     )
-    detected, box, image, selected_box = detect_bot(input_image) ## bounding box 그려진 원본 이미지와 detection box 좌표
-    # croped_dict = crop_images(image, bbox=box)
-    croped_dict = crop_images(image, bbox=selected_box)
+    answer = reader(image=input_image)
+    return answer
     
-    if recognition_model_path is None:
-        return detected ## recognition path가 없는 경우에는 그냥 감지된 영역에 bbox처리된 이미지만 return
-    else:
-        if recognition_cfg['NAME'] == 'CLOVA':
-            recog_bot = CLOVAPredictBot(recognition_model_path)
-            pred_dict = recog_bot.predict_one_call(croped_dict)
-        elif recognition_cfg['NAME'] == 'HENNET':
-            recog_bot = HENNETPredictBot(recognition_cfg)
-            pred_dict = recog_bot.predict_one_call(croped_dict)
-        #for idx, b in enumerate(box):
-        #    pred_dict[idx]['bbox'] = b
-        return pred_dict
 
 @app.route("/")
 def main():
@@ -64,16 +42,17 @@ def model():
         # recipt_image = request.files['image'] ## flutter 서버에서 이미지 받아오기 (np array 형태라고 가정하자)
         # image_path = '/home/guest/speaking_fridgey/ocr_exp_v2/text_detection/demo/sample/recipt.jpg'
         # 이미지를 로컬에 저장하는 과정이 필요함 -> 근데 서버에 베포한다고 생각하면 어떻게 이미지를 로컬에 저장하는 걸까?
-        with open(os.path.join(BASE_PATH, 'src/recognizer/recognizer.yaml'), 'r') as f:
+        with open(os.path.join(BASE_PATH, 'src/fridgeyocr/config/hennet_recognition.yaml'), 'r') as f:
             recog_cfg = yaml.load(f, Loader=yaml.FullLoader)
-        with open(os.path.join(BASE_PATH, 'src/detector/detector.yaml'), 'r') as f:
+        with open(os.path.join(BASE_PATH, 'src/fridgeyocr/config/ctpn_detection.yaml'), 'r') as f:
             detect_cfg = yaml.load(f, Loader=yaml.FullLoader)
         pred_dict = run_ocr(
             detection_cfg=detect_cfg, input_image=image, #  image_path=image_path,
             remove_white=True, recognition_cfg=recog_cfg
         )
-    
-    return pred_dict, 200 # jsonify(pred_dict), 200
+
+    print(pred_dict)
+    return pred_dict, 200 
 
 if __name__ == "__main__":
     app.debug=True

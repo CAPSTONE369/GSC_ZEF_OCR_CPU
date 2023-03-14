@@ -1,0 +1,36 @@
+PRETRAINED: !!str ctpn_pretrained.pt
+PREPROCESS: !!bool true
+STD:
+  - 0.20037157
+  - 0.18366718
+  - 0.19631825
+MEAN:
+  - 0.90890862
+  - 0.91631571
+  - 0.90724233
+MIN_V_OVERLAP: !!float 0.7
+MIN_SIZE_SIM: !!float 0.7
+MAX_HORI_GAP: !!int 20
+CONF_SCORE: !!float 0.9
+IOU_THRESH: !!float 0.2 
+FEATURE_STRIDE: !!int 16
+ANCHOR_SHIFT: !!int 16
+MIN_SCORE: !!float 0.9
+NMS_THRESH: !!float 0.3
+REFINEMENT: !!bool false
+ANCHOR_IGNORE_LABEL: -1
+ANCHOR_POSITIVE_LABEL: 1
+ANCHOR_NEGATIVE_LABEL: 0
+IOU_OVERLAP_THRESH_POS: !!float 0.5
+IOU_OVERLAP_THRESH_NEG: !!float 0.3
+ANCHOR_HEIGHTS:
+  - 11
+  - 15
+  - 22
+  - 32
+  - 45
+  - 65
+  - 93
+  - 133
+  - 190
+  - 273
