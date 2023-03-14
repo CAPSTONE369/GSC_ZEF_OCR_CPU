@@ -7,7 +7,7 @@
 import numpy as np
 from typing import Tuple, List
 import os, sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def clip_boxes(bboxes, image_size):
     ## 원본 이미지의 크기의 가로, 세로보다 넘치거나 0보다 작은 길이를 가질수도 있어서 그부분 예외 처리
@@ -172,6 +172,7 @@ class TextProposalConnector(object):
     
     def get_text_lines(self, text_proposals, scores, image_size):
         tp_groups = self.group_text_proposals(text_proposals, scores, image_size)
+        print(f"TP GROUPS: {len(tp_groups)}")
         text_lines = np.zeros((len(tp_groups), 4), dtype = np.float32)
         average_scores = [] ## 각각의 예측된 text box의 score은 곧 각각의 anchor text score의 평균이다.
 

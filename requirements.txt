@@ -1,0 +1,20 @@
+Flask==2.2.2
+jamo==0.4.1
+jedi # @ file:///tmp/build/80754af9/jedi_1644315233700/work
+charset-normalizer #  @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
+Jinja2 # @ file:///croot/jinja2_1666908132255/work
+json5 # @ file:///tmp/build/80754af9/json5_1624432770122/work
+jsonschema # @ file:///opt/conda/conda-bld/jsonschema_1663375472438/work
+lmdb==1.4.0
+loguru # @ file:///opt/conda/conda-bld/loguru_1643635337857/work
+natsort==8.3.1
+numpy # @ file:///croot/numpy_and_numpy_base_1672336185480/work
+opencv-python==4.7.0.68
+Pillow==9.3.0
+einops==0.6.0
+natsort==8.3.1
+torch==1.12.1
+torchaudio==0.12.1
+torchvision==0.13.1
+tqdm # @ file:///opt/conda/conda-bld/tqdm_1664392687731/work
+pyyaml==6.0

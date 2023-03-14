@@ -2,11 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import os, sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.getcwd()) # text_recognition
+
 from einops import rearrange
-from modules.position import PositionEncoding, Adaptive2DPositionalEncoding
-from modules.transformer import TransformerEncoderLayer, SeperableTransformerEncoderLayer
-from modules.resnet import resnet45
+from position import PositionEncoding, Adaptive2DPositionalEncoding
+from transformer import TransformerEncoderLayer, SeperableTransformerEncoderLayer
+from resnet import resnet45
 
 """ Transformer Encoder
 - ResNet-50
@@ -67,6 +68,7 @@ class ResTransformer(nn.Module):
             )
         else:
             self.pos_encoder = PositionEncoding(embedding_dim=self.d_model, max_length=(img_w//4) * (img_h // 4), dropout_rate = 0.1, device =device)
+        
         if seperable_ffn:
             encoder_layer = SeperableTransformerEncoderLayer(model_dim=self.d_model, head_num=self.nhead, 
                 dim_feedforward=self.inner_dim, dropout=self.dropout, activation=self.activation)
@@ -93,6 +95,8 @@ class ResTransformer(nn.Module):
             feature = rearrange(feature, 'n c s -> s n c', n=n, c=c)
             # feature = feature.contiguous().view(n, c, -1).permute(2, 0, 1) ## (8*32, B, 512)
             feature = self.pos_encoder(feature,batch_size)
+        
+        
 
         for idx, layer in enumerate(self.transformer):
             if self.adaptive_pe:

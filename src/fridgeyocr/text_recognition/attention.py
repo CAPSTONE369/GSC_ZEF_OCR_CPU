@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import os, sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.getcwd())
 from mha_formula import multi_head_attention_forward
 
 class MultiHeadAttention(nn.Module):

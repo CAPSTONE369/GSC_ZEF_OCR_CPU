@@ -11,8 +11,8 @@
 import torch
 import numpy as np
 import os, sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from box_match import match_anchor_boxes
+# sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# from box_match import match_anchor_boxes
 
 from typing import List, Tuple, Optional
 

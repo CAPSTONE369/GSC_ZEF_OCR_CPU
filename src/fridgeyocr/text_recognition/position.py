@@ -14,7 +14,7 @@ from einops import rearrange
 - In the paper, the embedding dimension is not written.
 """
 USE_CUDA=torch.cuda.is_available()
-DEVICE=torch.device('cuda:6' if USE_CUDA else 'cpu')
+DEVICE=torch.device('cuda' if USE_CUDA else 'cpu')
 
 def get_sinusoid_encoding_table(max_length, embedding_dim):
   def cal_angle(position, dim_i):
@@ -116,6 +116,7 @@ class PositionEncoding(nn.Module):
     pe[:, 0::2] = torch.sin(pos / (10000**(_2i / embedding_dim)))
     pe[:, 1::2] = torch.cos(pos / (10000**(_2i / embedding_dim)))
     pe = torch.unsqueeze(pe, dim=1)
+    # self.project = nn.Linear(embedding_dim, embedding_dim)
     #self.pos_encoding = get_sinusoid_encoding_table(max_length, embedding_dim)
     # self.pe  = nn.Embedding.from_pretrained(self.pos_encoding, freeze=True)
     #positions = torch.arange()

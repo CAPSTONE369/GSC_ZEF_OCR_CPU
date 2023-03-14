@@ -100,6 +100,9 @@ class CTPN(torch.nn.Module):
 
         self.reset_parameters()
 
+    def get_device(self):
+        return next(self.parameters()).device
+
     def reset_parameters(self):
         for name, named_child in self.named_children():
             if name == "bilstm_layer":
@@ -166,3 +169,7 @@ class CTPN(torch.nn.Module):
         return output
     
 
+if __name__ == "__main__":
+    device = torch.device('cuda:6' if torch.cuda.is_available() else 'cpu')
+    ctpn = CTPN().to(device)
+    print(ctpn.get_device())

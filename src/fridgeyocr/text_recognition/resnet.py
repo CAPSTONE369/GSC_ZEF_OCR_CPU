@@ -61,6 +61,7 @@ class ResNet(nn.Module):
                                bias=False)
         self.bn1 = nn.BatchNorm2d(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
+        channels = [ch_in, ch_in * 2, ch_in * 4, ch_in * 8, ch_in * 16]
         """
         if isinstance(activation, nn.ReLU):
             self.relu = nn.ReLU(inplace=True)
@@ -72,11 +73,11 @@ class ResNet(nn.Module):
             self.relu = nn.LeakyReLU()
         """
         ## Downsampling을 1번째, 3번째 layer에서만 수행한다.
-        self.layer1 = self._make_layer(block, 32, layers[0], stride=2)
-        self.layer2 = self._make_layer(block, 64, layers[1], stride=1)
-        self.layer3 = self._make_layer(block,  128, layers[2], stride=2)
-        self.layer4 = self._make_layer(block,  256, layers[3], stride=1)
-        self.layer5 = self._make_layer(block, 512, layers[4],  stride=1)
+        self.layer1 = self._make_layer(block, channels[0], layers[0], stride=2)
+        self.layer2 = self._make_layer(block, channels[1], layers[1], stride=1)
+        self.layer3 = self._make_layer(block, channels[2], layers[2], stride=2)
+        self.layer4 = self._make_layer(block,  channels[3], layers[3], stride=1)
+        self.layer5 = self._make_layer(block, channels[4], layers[4],  stride=1)
         
         for m in self.modules():
             if isinstance(m, nn.Conv2d):

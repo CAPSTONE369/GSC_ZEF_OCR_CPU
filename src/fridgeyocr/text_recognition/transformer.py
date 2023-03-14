@@ -3,10 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import os, sys
 from einops import rearrange
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
+sys.path.append(os.getcwd())
 from attention import MultiHeadAttention as MultiheadAttention
-# from multi_head_attention import MultiheadAttention
+
 ### Depth Wise Convolution
 class DepthWiseConv(nn.Module):
   def __init__(self, nin, kernels_per_layer=1):
@@ -29,6 +28,7 @@ class SeperableFeedForward(nn.Module):
   
   def forward(self, x):
     return self.conv3(self.conv2(self.conv1(x)))
+  
 class TransformerEncoderLayer(nn.Module):
   def __init__(self, 
                model_dim=512,
