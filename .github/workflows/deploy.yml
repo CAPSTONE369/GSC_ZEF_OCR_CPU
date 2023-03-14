@@ -23,6 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt 
           
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+          
       - name: Check docker installed or not
         run: docker/setup-buildx-action@v1
         
