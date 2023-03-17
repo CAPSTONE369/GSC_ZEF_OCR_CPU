@@ -1,5 +1,6 @@
 from .detection import TextDetector # get_detector
 from .recognition import TextRecognizer # get_recongizer
+from .data_parse import get_roi_with_keywords, get_name_in_roi
 import cv2
 import numpy as np
 import torch
@@ -9,7 +10,7 @@ from pathlib import Path
 from loguru import logger
 import yaml
 
-# os.environ['CUDA_VISIBLE_DEVICES']="6" # 6번 GPU만 사용 가능
+os.environ['CUDA_VISIBLE_DEVICES']="6" # 6번 GPU만 사용 가능
 """
 configuration file을 만들기 위한 규칙
 fridegeyocr/config 폴더 안에 무조건 들어 있어야 하며, {MODEL_NAME}_{TASK_NAME}.yaml의 파일명 규칙을 지켜야 한다.
@@ -70,10 +71,11 @@ class Reader(object):
 
         if self.recognizer is not None:
             print("RECOGNITION START")
-            print(f"TEXT LINES: {len(text_lines)}")
             answer = self.recognizer.recognize(image, text_lines)
             print(f"RECOGNITION_END: {len(answer)}")
-            print(answer)
+            # print(answer)
+            left, right, drawn = get_roi_with_keywords(answer, image)
+            answer = get_name_in_roi(left, right, answer)
             return answer
         else:
             return text_lines

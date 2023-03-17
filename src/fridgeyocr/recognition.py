@@ -1,10 +1,12 @@
-from .text_recognition.jamo_utils.jamo_merge import join_jamos
+from .text_recognition.crnn_utils import get_crnn_output, change_to_tensor
+from .text_recognition.CRNN import CRNN
 from .text_recognition.hennet_label_converter import HangulLabelConverter
 from .text_recognition.HENNET import HENNet
+from .text_recognition.crnn_label_converter import CTCLabelConverter, AttnLabelConverter
 
 import torch
 import os
-import easyocr
+# import easyocr
 import cv2
 import math
 from torchvision import transforms
@@ -14,34 +16,54 @@ from collections import defaultdict
 
 BASE_PATH=os.path.dirname(os.path.abspath(__file__))  # os.getcwd()
 PRETRAINED_PATH=os.path.join(BASE_PATH, 'pretrained_models')
-
+RECOGNITION_FOLDER=os.path.join(BASE_PATH, 'text_recognition')
+WORD_PATH=os.path.join(RECOGNITION_FOLDER, 'words.txt')
 
 class TextRecognizer(object):
     def __init__(self, recog_config, pretrained_model):
         super(TextRecognizer, self).__init__()
         self.cfg = recog_config
+        self.model_name = self.cfg['NAME']
         self.pretrained_model=pretrained_model
         self.device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
-        self.easy_ocr =  easyocr.Reader(lang_list=["ko", "en"], gpu=True, detect_network="craft", recognizer=True, detector=True)
-        self.label_converter = HangulLabelConverter(
-            add_num=self.cfg['ADD_NUM'], add_eng=self.cfg['ADD_ENG'],
-            add_special=self.cfg['ADD_SPECIAL'], max_length=self.cfg['MAX_LENGTH']
-        )
+        # self.easy_ocr =  easyocr.Reader(lang_list=["ko", "en"], gpu=True, detect_network="craft", recognizer=True, detector=True)
+        if self.model_name == 'HENNET':
+            self.label_converter = HangulLabelConverter(
+                add_num=self.cfg['ADD_NUM'], add_eng=self.cfg['ADD_ENG'],
+                add_special=self.cfg['ADD_SPECIAL'], max_length=self.cfg['MAX_LENGTH']
+            )
+        else:
+            with open(WORD_PATH, 'r') as f:
+                words = f.readlines()[0]
+            print(f"WORD DICT LOADED: {len(words)}")
+            self.cfg['CHARACTER'] += words
+            if self.cfg['PREDICTION'] == 'CTC':
+                self.label_converter = CTCLabelConverter(character = self.cfg['CHARACTER'])
+            else:
+                self.label_converter = AttnLabelConverter(character = self.cfg['CHARACTER'])
         self.load_model()
     
     def load_model(self):
-        model = HENNet(
-            img_w=self.cfg["IMG_W"], img_h=self.cfg['IMG_H'], res_in=self.cfg["RES_IN"],
-            encoder_layer_num=self.cfg["ENCODER_LAYER_NUM"], attentional_transformer=self.cfg['ATTENTIONAL_TRANSFORMER'],
-            class_n=self.label_converter._get_class_n(), adaptive_pe=self.cfg['ADAPTIVE_PE'], 
-            seperable_ffn=self.cfg['SEPERABLE_FFN'], head_num=self.cfg['HEAD_NUM'],
-            batch_size=self.cfg['BATCH_SIZE'], use_conv=self.cfg['USE_CONV'],
-            embedding_dim=self.cfg['EMBEDDING_DIM']
-        )
+        if self.model_name == 'HENNET':
+            model = HENNet(
+                img_w=self.cfg["IMG_W"], img_h=self.cfg['IMG_H'], res_in=self.cfg["RES_IN"],
+                encoder_layer_num=self.cfg["ENCODER_LAYER_NUM"], attentional_transformer=self.cfg['ATTENTIONAL_TRANSFORMER'],
+                class_n=self.label_converter._get_class_n(), adaptive_pe=self.cfg['ADAPTIVE_PE'], 
+                seperable_ffn=self.cfg['SEPERABLE_FFN'], head_num=self.cfg['HEAD_NUM'],
+                batch_size=self.cfg['BATCH_SIZE'], use_conv=self.cfg['USE_CONV'],
+                embedding_dim=self.cfg['EMBEDDING_DIM']
+            )
+            ckpt = torch.load(self.pretrained_model)
+        else:
+            model = CRNN(
+                recog_config=self.cfg, num_class=len(self.label_converter.character)
+            )
+            ckpt = torch.load(self.pretrained_model)
+            ckpt = {'.'.join(key.split('.')[1:]):value for key, value in ckpt.items()}
         model.to(self.device)
         # pretrained_dir = os.path.join(PRETRAINED_PATH, self.cfg['PRETRAINED'])
         # model.load_state_dict(torch.load(pretrained_dir))
-        model.load_state_dict(torch.load(self.pretrained_model))
+        model.load_state_dict(ckpt)
         model.eval()
 
         self.model = model
@@ -62,17 +84,14 @@ class TextRecognizer(object):
     def get_easyocr_output(self, image, horizontal_list, free_list_agg=[[]]):
         predicted = self.easy_ocr.recognize(image, horizontal_list=horizontal_list, free_list=free_list_agg[0])[0]
         box, word, score = predicted[0], predicted[1], predicted[2]
-        print(word)
         han_word = re.sub(re.compile('[^가-힣]'), '', word)
         word = re.sub(re.compile('[^가-힣0-9]'), '', word)
         if word == "":
             return ["dummy", word]
         else:
             if "상품" in han_word or "품명" in word:
-                print(word)
                 return ["name_header", word]
             if "수량" in han_word:
-                print(word)
                 return ["quant_header", word]
             if han_word == "" and word != "":
                 return ["quant_candidate", word]
@@ -95,22 +114,37 @@ class TextRecognizer(object):
         
             croped_box = image[y1:y2, x1:x2]
             
-            with torch.no_grad():
-                input = self.make_model_input(croped_box)
-                input = input.unsqueeze(0)
-                input = input.to(self.model.get_device())
-                pred = self.model(input)
-                pred_text, _, _ = self.label_converter.decode(pred)
-                easyocr_pred = self.get_easyocr_output(image, [[x1, x2, y1, y2]])
-                if easyocr_pred[0] == "name_header":
-                    name_header = [x1, y1, x2, y2]
-                if easyocr_pred[0] == "quant_header":
-                    quant_header = [x1, y1, x2, y2]
-                new_bbox.append([x1, y1, x2, y2, idx])
-                text_dict[idx] = {
-                    "text": pred_text, "box": [x1, y1, x2, y2],
-                    "easy_ocr_pred": easyocr_pred,
-                }
+            if self.model_name == 'CRNN':
+                tensor_image = change_to_tensor(croped_box, self.cfg['IMGH'], self.cfg['IMGW'])
+                # print(tensor_image.shape)
+                pred_str = get_crnn_output(self.model, tensor_image, 
+                                           prediction_mode=self.cfg['PREDICTION'], 
+                                           converter = self.label_converter)
+    
+                if re.sub(re.compile('[^가-힣]'), '', pred_str) != '':
+                    answer.append({
+                        "name": pred_str, "box": [x1, y1, x2, y2] #, "quantity": "1"
+                    }) 
+            else:
+                with torch.no_grad():
+                    input = self.make_model_input(croped_box)
+                    input = input.unsqueeze(0)
+                    input = input.to(self.model.get_device())
+                    pred = self.model(input)
+                    pred_text, _, _ = self.label_converter.decode(pred)
+                    # easyocr_pred = self.get_easyocr_output(image, [[x1, x2, y1, y2]])
+                    # if easyocr_pred[0] == "name_header":
+                    #     name_header = [x1, y1, x2, y2]
+                    # if easyocr_pred[0] == "quant_header":
+                    #     quant_header = [x1, y1, x2, y2]
+                    new_bbox.append([x1, y1, x2, y2, idx])
+                    text_dict[idx] = {
+                        "text": pred_text, "box": [x1, y1, x2, y2],
+                        # "easy_ocr_pred": easyocr_pred,
+                    }
+        if self.model_name == 'CRNN':
+            return answer
+        
         new_sorted_bbox = sorted(new_bbox, key = lambda x: (x[1], x[0]))
         if name_header != []:
             hx1, hy1, hx2, hy2 = name_header
@@ -119,8 +153,8 @@ class TextRecognizer(object):
                 box = td["box"]
                 if box[1] < hy2: # <상품명> 보다 아래에 위치한 text box이어야만 한다.
                     continue
-                if td['easy_ocr_pred'][0] != 'name_candidate': # 한글이 무조건 포함이 되어야 상품명으로 구분할 수 있다.
-                    continue 
+                # if td['easy_ocr_pred'][0] != 'name_candidate': # 한글이 무조건 포함이 되어야 상품명으로 구분할 수 있다.
+                #     continue 
                 mx = max(hx1, box[0])
                 Mx = min(hx2, box[2])
                 inter_w = Mx-mx
@@ -129,7 +163,7 @@ class TextRecognizer(object):
 
                 if (inter_w <= (union_w * 0.8) and width <= (box[2] - box[0])): # horizontal 뱡향으로 0.8만큼 이상 겹치는 경우를 사용한다.
                     answer.append(
-                        {"name": td['easy_ocr_pred'][1], # td["text"], 
+                        {"name": td["text"], 
                          "quantity": str(1)}
                     )
         else:
