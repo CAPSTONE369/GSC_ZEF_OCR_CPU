@@ -1,12 +1,11 @@
-START_WORDS = ['수량', '단가', '단가수량']
-STOP_WORDS = ['과세', '부가세', '과세물품', '합계', '면세물품', '총액', '총구매액', '할인금액', '활인금액', '신용카드', '면세', '카드', '판매총액']
+START_WORDS = ['수량', '단가', '단가수량', '금액']
+STOP_WORDS = ['총품목수량', '결제', '과세', '부가세', '과세물품', '합계', '합', '면세물품', '총액', '총구매액', '할인금액', '활인금액', '신용카드', '면세', '카드', '판매총액']
 NAME_WORDS = ['상품명', '품명', '상품코드', '코드',] # '상품']
 
 ## 불용어는 START WORDS, 
 NOT_WORDS = STOP_WORDS + NAME_WORDS + ['할인',  '금액', '과세', '면세', '부가새', '품목', '할인', '에누리', '애누리', '특가', '세일', '릴레이', '물품', '수량'] # '총품목',]
-
 def match_string(source, target):
-  if (source == target) or (target in source):
+  if (source == target): # or (target in source):
     return True
   return False
 

@@ -14,16 +14,17 @@ os.makedirs(PRETRAINED_DIR, exist_ok=True)
 MODEL_WEIGHTS = {
     "TPS_RESNET_BILSTM_CTC": '1XpujSr2yV35E-25Gs8FmxOJDgYthehg3',
     "TPS_RCNN_BILSTM_CTC": '',
+    "BEST_TPS_RESNET_BILSTM_CTC": '1Z3dP3cp2f1P5tfcreWkzf2hAfN_J0EgI',
     "CTPN": '1XF76z5iRhYxrbAiLIddJC5X5dJkmumDh'
 }
-
+# https://drive.google.com/file/d/1Z3dP3cp2f1P5tfcreWkzf2hAfN_J0EgI/view?usp=share_link
 def make_recognition_key(recog_cfg):
     trans = recog_cfg['TRANSFORMATION'].upper()
     feat = recog_cfg['FEATUREEXTRACTION'].upper()
     seq = recog_cfg['SEQUENCEMODELING'].upper()
     pred = recog_cfg['PREDICTION'].upper()
 
-    return f"{trans}_{feat}_{seq}_{pred}"
+    return f"BEST_{trans}_{feat}_{seq}_{pred}"
 
 def run_ocr(
     detection_cfg: dict, 
