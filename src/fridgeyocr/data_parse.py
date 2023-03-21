@@ -4,6 +4,8 @@ NAME_WORDS = ['상품명', '품명', '상품코드', '코드',] # '상품']
 
 ## 불용어는 START WORDS, 
 NOT_WORDS = STOP_WORDS + NAME_WORDS + ['할인',  '금액', '과세', '면세', '부가새', '품목', '할인', '에누리', '애누리', '특가', '세일', '릴레이', '물품', '수량'] # '총품목',]
+import cv2
+
 def match_string(source, target):
   if (source == target): # or (target in source):
     return True
