@@ -97,7 +97,7 @@ class TextDetector(object):
         self.FEATURE_STRIDE=self.cfg['FEATURE_STRIDE']
         self.ANCHOR_SHIFT=self.cfg['ANCHOR_SHIFT']
         self.ANCHOR_HEIGHTS=self.cfg['ANCHOR_HEIGHTS']
-        self.PREPROCESS=self.cfg['PREPROCESS']
+        self.PREPROCESS=False  # self.cfg['PREPROCESS']
     
         self.text_proposal_connector=TextProposalConnector(detect_config)
         self.load_model()
@@ -131,8 +131,8 @@ class TextDetector(object):
         image: image must be a numpy array
         Output: (predicted_bboxes, predicted_scores) -> These are the predictions of the CTPN model
         """
-        if self.PREPROCESS:
-            image = recipt_preprocessing(image)
+        # if self.PREPROCESS:
+        #     image = recipt_preprocessing(image)
         H, W, C = image.shape
         input_image = image
         if H > W:new_shape = (2048, 1024)
@@ -199,7 +199,7 @@ class TextDetector(object):
         text_lines *= np.array([[
             detect_meta['ratio_w'], detect_meta['ratio_h'], detect_meta['ratio_w'], detect_meta['ratio_h']
         ]])
-        text_lines = remove_empty(text_lines)
+        # text_lines = remove_empty(text_lines)
         return text_lines, scores, detect_meta["original_image"]
 
         

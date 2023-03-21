@@ -1,0 +1,15 @@
+TRANSFORMATION: !!str TPS
+FEATUREEXTRACTION: !!str ResNet
+SEQUENCEMODELING: !!str BiLSTM
+PREDICTION: !!str CTC
+NUMFIDUCIAL: !!int 20
+IMGH: !!int 32
+IMGW: !!int 128
+INPUTCHANNEL: !!int 1
+OUTPUTCHANNEL: !!int 512
+HIDDENSIZE: !!int 256
+
+CHARACTER: !!str 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ?!
+NAME: !!str "CRNN"
+## PRETRAINED MODEL PATH는 그냥 Reader 정의 해 줄 때 입력으로 넣어주기로 함
+PRETRAINED: !!str crnn_pretrained.pt # crnn_pretrained.pt
