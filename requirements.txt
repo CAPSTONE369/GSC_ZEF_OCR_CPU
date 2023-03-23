@@ -104,7 +104,6 @@ seaborn==0.12.1
 Send2Trash==1.8.0
 shapely==2.0.1
 six==1.16.0
-scikit-learn
 soupsieve==2.3.2.post1
 stack-data==0.5.1
 terminado==0.16.0
