@@ -1,5 +1,6 @@
 from .detection import TextDetector # get_detector
 from .recognition import TextRecognizer # get_recongizer
+from .data_parse_distance import get_roi_of_recipt
 from .data_parse import get_roi_with_keywords, get_name_in_roi
 import cv2
 import numpy as np
@@ -74,7 +75,8 @@ class Reader(object):
             answer = self.recognizer.recognize(image, text_lines)
             print(f"RECOGNITION_END: {len(answer)}")
             # print(answer)
-            left, right, drawn = get_roi_with_keywords(answer, image)
+            # left, right, drawn = get_roi_with_keywords(answer, image)
+            left, right, drawn = get_roi_of_recipt(answer, image)
             answer = get_name_in_roi(left, right, answer)
             return answer
         else:
