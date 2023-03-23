@@ -6,7 +6,6 @@ from .text_recognition.crnn_label_converter import CTCLabelConverter, AttnLabelC
 
 import torch
 import os
-# import easyocr
 import cv2
 import math
 from torchvision import transforms
@@ -25,6 +24,7 @@ class TextRecognizer(object):
         self.cfg = recog_config
         self.model_name = self.cfg['NAME']
         self.pretrained_model=pretrained_model
+        # self.device = torch.device('cpu')
         self.device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
         # self.easy_ocr =  easyocr.Reader(lang_list=["ko", "en"], gpu=True, detect_network="craft", recognizer=True, detector=True)
         if self.model_name == 'HENNET':
@@ -53,14 +53,15 @@ class TextRecognizer(object):
                 batch_size=self.cfg['BATCH_SIZE'], use_conv=self.cfg['USE_CONV'],
                 embedding_dim=self.cfg['EMBEDDING_DIM']
             )
-            ckpt = torch.load(self.pretrained_model)
+            ckpt = torch.load(self.pretrained_model, map_location = self.device)
         else:
             model = CRNN(
                 recog_config=self.cfg, num_class=len(self.label_converter.character)
             )
-            ckpt = torch.load(self.pretrained_model)
+            ckpt = torch.load(self.pretrained_model, map_location = self.device)
             ckpt = {'.'.join(key.split('.')[1:]):value for key, value in ckpt.items()}
         model.to(self.device)
+        # print(model.get_device())
         # pretrained_dir = os.path.join(PRETRAINED_PATH, self.cfg['PRETRAINED'])
         # model.load_state_dict(torch.load(pretrained_dir))
         model.load_state_dict(ckpt)

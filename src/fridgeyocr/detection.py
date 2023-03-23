@@ -90,6 +90,7 @@ class TextDetector(object):
     def __init__(self, detect_config, pretrained_model):
         super(TextDetector, self).__init__()
         self.cfg=detect_config
+        # self.device = torch.device('cpu')
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.pretrained_model=pretrained_model
         self.CONF_SCORE=self.cfg['CONF_SCORE']
@@ -103,11 +104,12 @@ class TextDetector(object):
         self.load_model()
 
     def load_model(self):
-        model = CTPN().to(self.device)
+        model = CTPN() # .to(self.device)
         # weight_path = os.path.join(PRETRAINED_PATH, self.cfg['PRETRAINED'])
         weight_path = self.pretrained_model
         assert os.path.isfile(weight_path)
-        weight = torch.load(weight_path)
+        weight = torch.load(weight_path, map_location = self.device)
+
         if 'model_state_dict' in weight:
             weight = weight['model_state_dict']
         weight = {
@@ -116,7 +118,7 @@ class TextDetector(object):
         }
         model.load_state_dict(weight)
 
-        self.model = model
+        self.model = model.to(self.device)
         self.model.eval()
         print("MODEL LOADED")
 
