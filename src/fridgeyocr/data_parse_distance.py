@@ -1,4 +1,6 @@
 import re
+import cv2
+
 
 def leave_han(a):
   a = re.sub(re.compile('[^가-힣]'), '', a)

@@ -53,12 +53,12 @@ class TextRecognizer(object):
                 batch_size=self.cfg['BATCH_SIZE'], use_conv=self.cfg['USE_CONV'],
                 embedding_dim=self.cfg['EMBEDDING_DIM']
             )
-            ckpt = torch.load(self.pretrained_model)
+            ckpt = torch.load(self.pretrained_model, map_location = self.device)
         else:
             model = CRNN(
                 recog_config=self.cfg, num_class=len(self.label_converter.character)
             )
-            ckpt = torch.load(self.pretrained_model)
+            ckpt = torch.load(self.pretrained_model, map_location = self.device)
             ckpt = {'.'.join(key.split('.')[1:]):value for key, value in ckpt.items()}
         model.to(self.device)
         # pretrained_dir = os.path.join(PRETRAINED_PATH, self.cfg['PRETRAINED'])
