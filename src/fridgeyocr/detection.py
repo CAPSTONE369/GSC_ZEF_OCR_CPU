@@ -90,6 +90,7 @@ class TextDetector(object):
     def __init__(self, detect_config, pretrained_model):
         super(TextDetector, self).__init__()
         self.cfg=detect_config
+        # self.device = torch.device('cpu')
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.pretrained_model=pretrained_model
         self.CONF_SCORE=self.cfg['CONF_SCORE']
