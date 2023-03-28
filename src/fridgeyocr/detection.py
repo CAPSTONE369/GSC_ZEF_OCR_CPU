@@ -8,7 +8,7 @@ from .text_detection.detection_utils import nms, decode, clip_boxes
 import numpy as np
 import torch
 from torchvision import transforms
-import easyocr
+# import easyocr
 import cv2
 import yaml
 import math
@@ -64,7 +64,7 @@ def remove_empty(text_lines):
         new_lines.append(text_line)
     return new_lines
             
-
+"""
 def temporary_kie(text_lines, image):
     lang = ["ko", "en"] # easy ocr에서 사용 가능한 언어
     reader = easyocr.Reader(lang_list=lang, gpu=True, detect_network="craft", recognizer=True, detector=True)
@@ -85,6 +85,7 @@ def temporary_kie(text_lines, image):
     # (3) Check all the words in the similar horizontal line with '수량' and '상품명' 
     # (4) Return them as a pair
     pass
+"""
 
 class TextDetector(object):
     def __init__(self, detect_config, pretrained_model):

@@ -7,3 +7,7 @@ __pycache__/
 src/fridgeyocr/pretrained_models/*
 src/fridgeyocr/pretrained_weights/*
 /home/guest/speaking_fridgey/ocr_deploy_v1/inference_server/test/*
+!figures/*.png
+!figures/*.jpg
+!static/*.png
+!static/*.jpg
