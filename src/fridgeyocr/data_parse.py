@@ -1,5 +1,5 @@
 START_WORDS = ['수량', '단가', '단가수량', '금액']
-STOP_WORDS = ['총품목수량', '결제', '과세', '부가세', '과세물품', '합계', '합', '면세물품', '총액', '총구매액', '할인금액', '활인금액', '신용카드', '면세', '카드', '판매총액']
+STOP_WORDS = ['총품목수량', '결제', '과세', '부가세', '과세물품', '합계',  '면세물품', '총액', '총구매액', '할인금액', '활인금액', '신용카드', '면세', '카드', '판매총액']
 NAME_WORDS = ['상품명', '품명', '상품코드', '코드',] # '상품']
 
 ## 불용어는 START WORDS, 
@@ -112,7 +112,7 @@ def vertical_nms(answer_dict):
       # inter = min(target[1], source[1]) - max(target[0], source[0])
       # if (inter / uni) > 0.9:
         new_answer_dict.append({
-            "name": source[-1] + target[-1]
+            "name": target[-1] + source[-1] # source[-1] + target[-1]
         })
         used[i] = True
         used[j] = True

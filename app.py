@@ -1,24 +1,25 @@
 from src.fridgeyocr import fridgeyocr
 from src.fridgeyocr import gdrive_utils
-import os, yaml, math, cv2
+import os, yaml, math, cv2, json
 from PIL import Image
 import numpy as np
-from flask import request, jsonify
+from flask import request, render_template
 BASE_PATH=os.path.dirname(os.path.abspath(__file__))
 from flask import Flask
 app = Flask(__name__)
+
+# os.environ['CUDA_VISIBLE_DEVICES'] = 'GPU-b12b544c-b6f2-084c-76c5-78589afdfe14' # " 0"
+os.environ['CUDA_VISIBLE_DEVICES'] = '6'
 
 PRETRAINED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src/fridgeyocr/pretrained_weights')
 os.makedirs(PRETRAINED_DIR, exist_ok=True)
 ## Google Drive에서 파일 ID는 파일 위치와 파일 이름만 동일하다면 계속 일정하다.
 MODEL_WEIGHTS = {
     "TPS_RESNET_BILSTM_CTC": '1XpujSr2yV35E-25Gs8FmxOJDgYthehg3',
-    "TPS_RCNN_BILSTM_CTC": '',
-    "BEST_TPS_RESNET_BILSTM_CTC": '1BB80X_OQCOJiLYDms77fbw28KBnVwnSY', # '1Z3dP3cp2f1P5tfcreWkzf2hAfN_J0EgI',
+    "BEST_TPS_RESNET_BILSTM_CTC": '130_1LqWwJgcGOP0Oo_bj1WjBuF2H9MSl', # '1Z3dP3cp2f1P5tfcreWkzf2hAfN_J0EgI', # '1BB80X_OQCOJiLYDms77fbw28KBnVwnSY', # '1Z3dP3cp2f1P5tfcreWkzf2hAfN_J0EgI',
     "CTPN": '1XF76z5iRhYxrbAiLIddJC5X5dJkmumDh'
 }
-# https://drive.google.com/file/d/1BB80X_OQCOJiLYDms77fbw28KBnVwnSY/view?usp=share_link
-# https://drive.google.com/file/d/1Z3dP3cp2f1P5tfcreWkzf2hAfN_J0EgI/view?usp=share_link
+
 def make_recognition_key(recog_cfg):
     trans = recog_cfg['TRANSFORMATION'].upper()
     feat = recog_cfg['FEATUREEXTRACTION'].upper()
@@ -59,6 +60,26 @@ def run_ocr(
 def main():
     return "Hello World" 
 
+@app.route("/demo", methods=["POST", "GET"])
+def demo():
+    if request.method == 'GET':
+        return render_template("demo.html")
+    if request.method == 'POST':
+        file = request.files['file']
+        image = Image.open(file.stream)
+        image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
+        with open(os.path.join(BASE_PATH, 'src/fridgeyocr/config/crnn_recognition.yaml'), 'r') as f:
+            recog_cfg = yaml.load(f, Loader=yaml.FullLoader)
+        with open(os.path.join(BASE_PATH, 'src/fridgeyocr/config/ctpn_detection.yaml'), 'r') as f:
+            detect_cfg = yaml.load(f, Loader=yaml.FullLoader)
+        pred_dict = run_ocr(
+            detection_cfg=detect_cfg, input_image=image, #  image_path=image_path,
+            remove_white=True, recognition_cfg=recog_cfg
+        )
+        return render_template("result.html", result= pred_dict)
+
+
+
 
 @app.route("/model", methods=['POST'])
 def model():
@@ -79,7 +100,10 @@ def model():
         )
 
     print(pred_dict)
-    return pred_dict, 200 
+    # res = json.loads(pred_dict)
+    return json.dumps(pred_dict, ensure_ascii=False, indent=4)
+    # return json.dumps(pred_dict, ensure_ascii=False, indent=4)
+    # return pred_dict, 200 
 
 if __name__ == "__main__":
     app.debug=True

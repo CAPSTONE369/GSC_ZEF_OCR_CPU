@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<meta charset="UTF-8-SIG">
+<html>
+    <center>
+        <img src="{{url_for('static', filename='fridgeylogo.png')}}" />
+        <h2> These are the Recognized Results of The Food You Bought </h2>
+        <table border=1>
+        {% for data in result %}
+        {% for key, value in data.items() %}
+        <tr>
+            <th> {{key}} </th>
+            <td> {{value}} </td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+        </table>
+
+    </center>
+</html>
