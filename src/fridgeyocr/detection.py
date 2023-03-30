@@ -92,7 +92,7 @@ class TextDetector(object):
         super(TextDetector, self).__init__()
         self.cfg=detect_config
         # self.device = torch.device('cpu')
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cpu') # torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.pretrained_model=pretrained_model
         self.CONF_SCORE=self.cfg['CONF_SCORE']
         self.IOU_THRESH=self.cfg['IOU_THRESH']
