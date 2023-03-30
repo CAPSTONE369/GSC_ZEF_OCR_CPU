@@ -1,9 +1,64 @@
-## 🔆 OCR Repository of Zero Fridge
+# 🔆 OCR Repository of Zero Fridge
 **Zero Fridge** is an application which manages user's fridges by alarming of food subscription dates, and makes recording food bought easy by using the recipt OCR technology.  
 
 **✔️ This is the repository for the OCR flow; containing of `Text Detection`, `Text Recognition`, and `Key Information Extraction`.**  
 
-### `1. Directory Structure`
+<br />
+
+## 1. To Run Inference Of Fridge OCR Model
+### 1. Environment
+- If you want to test this model, you should install Docker.
+- We recommend that please run this model on GPU
+
+<br />
+
+_**HOW TO INSTALL DOCKER?**_
+- Ubuntu
+```bash
+sudo apt update
+sudo apt install docker.io
+```
+
+- Mac, Window
+> Use Docker Desktop.
+  [YOU CAN INSTALL HERE](https://www.docker.com/products/docker-desktop/)
+
+<br />
+
+### 2. Installation
+1) Pull Docker Image
+```bash
+sudo docker pull sunnyineverywhere/fridge-ocr-flask
+```
+
+2) Usage
+You can test the OCR demonstration on your recipt image by running the `Flask` api.
+```bash
+sudo docker run -d -p 5000:5000 sunnyineverywhere/fridge-ocr-flask
+```
+- The demo is available in `localhost:5000/model` if you wish to test the result via `Postman`.
+- The demo is available in `localhost:5000/demo` if you wish to test the result by uploading the image via web.
+
+<br />
+
+## 2. Explanation on How it Works
+### 1) Procedure
+<img src="./figures/fridgeyocr_flow.png">
+
+### 2) On WEB
+<table border="1" cellspacing="0" cellpadding="0" width="100%">
+  <tr>
+    <td width="50%" align="center">`demo` before submit</td>
+    <td width="50%" align="center">`demo` after submit</td>
+  </tr>
+  <tr width="100%">
+        <td width="50%" align="center"><img alt="image" src="https://user-images.githubusercontent.com/80109963/228731166-32423ce0-91eb-4f14-9e69-4d7673f5a630.png"></td>
+        <td width="50%" align="center"><img alt="image" src="https://user-images.githubusercontent.com/80109963/228731309-8c7e1bbf-663c-4575-af57-8b29f08ad9d8.png"></td>
+  </tr>
+</table>
+
+
+## 3. Directory Structure
 ```
 MAIN_REPO
 .
@@ -157,23 +212,4 @@ MAIN_REPO
 
 
 ```
-### `2. To Run Inference Of Our FridgeyOCR`
-#### 1. Installation
-Install using `pip`
-```
-cd [DIRECTORY OF REPOSITORY]
-pip install -r requirements.txt
-```
-#### 2. Usage
-You can test the OCR demonstration on your recipt image by running the `Flask` api.
-```
-python run.py
-```
-- The demo is available in `127.0.0.1:8080/model` if you wish to test the result via `Postman`.
-- The demo is available in `127.0.0.1:8080/demo` if you wish to test the result by uploading the image via web.
-
-
-
-### `3. Explanation on How it Works`
-<img src="./figures/fridgeyocr_flow.png">
 
