@@ -25,7 +25,7 @@ class TextRecognizer(object):
         self.model_name = self.cfg['NAME']
         self.pretrained_model=pretrained_model
         # self.device = torch.device('cpu')
-        self.device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cpu') # torch.device("cuda" if torch.cuda.is_available() else 'cpu')
         # self.easy_ocr =  easyocr.Reader(lang_list=["ko", "en"], gpu=True, detect_network="craft", recognizer=True, detector=True)
         if self.model_name == 'HENNET':
             self.label_converter = HangulLabelConverter(
