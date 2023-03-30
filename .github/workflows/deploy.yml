@@ -46,5 +46,5 @@ jobs:
           file: ./Dockerfile	# 빌드할 Dockerfile이 있는 디렉토리
           platforms: linux/amd64	# 빌드할 때 사용할 환경.
           push: true				# Dockerhub 푸쉬 여부
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/fridge-ocr-flask	# docker 이미지 이름
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/fridge-ocr-flask-cpu	# docker 이미지 이름
         
