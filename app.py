@@ -8,8 +8,7 @@ BASE_PATH=os.path.dirname(os.path.abspath(__file__))
 from flask import Flask
 app = Flask(__name__)
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = 'GPU-b12b544c-b6f2-084c-76c5-78589afdfe14' # " 0"
-os.environ['CUDA_VISIBLE_DEVICES'] = '6'
+
 
 PRETRAINED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src/fridgeyocr/pretrained_weights')
 os.makedirs(PRETRAINED_DIR, exist_ok=True)
