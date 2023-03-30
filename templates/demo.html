@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<meta charset="UTF-8-SIG">
+<meta charset="UTF-8-SIG" />
 <html>
-    <body>
+  <body>
     <center>
-        <img src="{{url_for('static', filename='fridgeylogo.png')}}" alt="image" />
-        <h2> Welcome To Zero Fridge</h2>
-        <form action="http://localhost:8080/demo" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" />
-            <input type="submit" />
-        </form>
+      <img
+        src="{{url_for('static', filename='fridgeylogo.png')}}"
+        alt="image"
+      />
+      <h2>Welcome To Zero Fridge</h2>
+      <form action="/demo" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <input type="submit" />
+      </form>
     </center>
-    </body>
+  </body>
 </html>
