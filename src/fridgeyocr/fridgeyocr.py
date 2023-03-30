@@ -11,7 +11,7 @@ from pathlib import Path
 from loguru import logger
 import yaml
 
-os.environ['CUDA_VISIBLE_DEVICES']="6" # 6번 GPU만 사용 가능 -> 이건 guest 서버일때만
+# os.environ['CUDA_VISIBLE_DEVICES']="6" # 6번 GPU만 사용 가능 -> 이건 guest 서버일때만
 """
 configuration file을 만들기 위한 규칙
 fridegeyocr/config 폴더 안에 무조건 들어 있어야 하며, {MODEL_NAME}_{TASK_NAME}.yaml의 파일명 규칙을 지켜야 한다.
